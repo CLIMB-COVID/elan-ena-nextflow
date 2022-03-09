@@ -36,7 +36,7 @@ Additionally, you will need to set the following parameters in your environment:
 ```
 export WEBIN_USER='Webin-00000'
 export WEBIN_PASS='hunter2'
-nextflow run samstudio8/elan-ena-nextflow -r stable \
+nextflow run climb-covid/elan-ena-nextflow -r stable \
     --study PRJEB00000 \
     --manifest /path/to/manifest.tsv \
     --webin_jar /path/to/webin-cli.jar \
@@ -48,5 +48,5 @@ nextflow run samstudio8/elan-ena-nextflow -r stable \
 To update a local copy:
 
 ```
-nextflow pull samstudio8/elan-ena-nextflow
+nextflow pull climb-covid/elan-ena-nextflow
 ```
