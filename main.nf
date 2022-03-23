@@ -25,7 +25,7 @@ out_name = file(params.out).name
 out_dir = file(params.out).parent
 
 
-workflow_repo = "samstudio8/elan-ena-nextflow"
+workflow_repo = "CLIMB-COVID/elan-ena-nextflow"
 workflow_v = workflow.manifest.version
 workflow_cid = ""
 if( workflow.commitId ){
@@ -59,11 +59,50 @@ process generate_chrlist {
     tuple row, file(ena_fasta) from chrlist_ch
 
     output:
-    tuple row, file(ena_fasta), file("${row.climb_fn.baseName}.chr_list.txt.gz") into genmanifest_ch
+    tuple row, file(ena_fasta), file("${row.climb_fn.baseName}.chr_list.txt.gz") into pyena_input_ch
 
     script:
     """
     echo "${row.published_name} 1 Monopartite" | gzip > ${row.climb_fn.baseName}.chr_list.txt.gz
+    """
+}
+
+process pyena_submission {
+    errorStrategy 'ignore'
+    conda "environments/pyena.yaml"
+
+    input:
+    tuple row, file(ena_fasta), file(chr_list), file(chr_list) from pyena_input_ch
+
+    output:
+    tuple row, file(ena_fasta), file(chr_list), file(chr_list) into genmanifest_ch
+
+
+    script:
+    """
+    pyena --study-accession ${params.study} --my-data-is-ready --no-ftp --sample-only \
+          --sample-name ${row.ena_sample_id} \
+          --sample-center-name "${row.center_name}" \
+          --sample-taxon '2697049' \
+          --sample-attr 'collector name' 'not provided' \
+          --sample-attr 'collecting institution' "${row.center_name}" \
+          --sample-attr 'collection date' ${row.collection_date} \
+          --sample-attr 'geographic location (country and/or sea)' 'United Kingdom' \
+          --sample-attr 'geographic location (region and locality)' '${row.adm1}' \
+          --sample-attr 'definition for seropositive sample' 'not provided' \
+          --sample-attr 'serotype (required for a seropositive sample)' 'not provided' \
+          --sample-attr 'host common name' 'not provided' \
+          --sample-attr 'host health state' 'not provided' \
+          --sample-attr 'host scientific name' 'Human' \
+          --sample-attr 'host sex' 'not provided' \
+          --sample-attr 'host subject id' 'not provided' \
+          --sample-attr 'isolate' 'not provided' \
+          --sample-attr 'receipt date' '${row.received_date}' \
+          --sample-attr 'sample capture status' 'active surveillance in response to outbreak' \
+          --sample-attr 'virus identifier' 'not provided' \
+          --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
+          --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}' 
     """
 }
 
@@ -72,28 +111,28 @@ process generate_manifest {
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
 
     output:
-    tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into webin_validate_ch
+    tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into pyena_submission
 
     script:
     def engine = new groovy.text.SimpleTemplateEngine()
     this_description = engine.createTemplate(description_s).make(['row':row]).toString()
     """
     echo "STUDY ${params.study}
-SAMPLE ${row.ena_sample_id}
-RUN_REF ${row.ena_run_id}
-ASSEMBLYNAME ${row.assemblyname}
-DESCRIPTION """ << this_description << """
-ASSEMBLY_TYPE COVID-19 outbreak
-MOLECULETYPE genomic RNA
-COVERAGE ${row.mean_cov}
-PROGRAM ${row.program}
-PLATFORM ${row.platform}
-CHROMOSOME_LIST ${chr_list}
-FASTA ${ena_fasta}
-AUTHORS ${row.authors}
-ADDRESS ${row.address}
-SUBMISSION_TOOL ${workflow_repo}
-SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
+    SAMPLE ${row.ena_sample_id}
+    RUN_REF ${row.ena_run_id}
+    ASSEMBLYNAME ${row.assemblyname}
+    DESCRIPTION """ << this_description << """
+    ASSEMBLY_TYPE COVID-19 outbreak
+    MOLECULETYPE genomic RNA
+    COVERAGE ${row.mean_cov}
+    PROGRAM ${row.program}
+    PLATFORM ${row.platform}
+    CHROMOSOME_LIST ${chr_list}
+    FASTA ${ena_fasta}
+    AUTHORS ${row.authors}
+    ADDRESS ${row.address}
+    SUBMISSION_TOOL ${workflow_repo}
+    SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
     """
 }
 
