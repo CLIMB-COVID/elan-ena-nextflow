@@ -139,7 +139,7 @@ process generate_manifest {
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
 
     output:
-    tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into pyena_submission
+    tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into webin_validate_ch
 
     script:
     def engine = new groovy.text.SimpleTemplateEngine()
