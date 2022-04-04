@@ -80,8 +80,8 @@ process pyena_submission {
 
     script:
     """
-    pyena --study-accession ${params.study} --my-data-is-ready --no-ftp --sample-only \
-          --sample-name ${row.ena_sample_id} \
+    pyena --study-accession ${params.study} --sample-only --no-ftp \
+          --sample-name COG-UK/${row.central_sample_id} \
           --sample-center-name "${row.center_name}" \
           --sample-taxon '2697049' \
           --sample-attr 'collector name' 'not provided' \
@@ -102,7 +102,35 @@ process pyena_submission {
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}' 
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}' \
+          --experiment-attr 'artic_primer_version' '${row.exp_primers}' \
+          --experiment-attr 'artic_protocol_version' '${row.exp_protocol}' \
+          --run-name ${row.published_name} > ${coguk_id}.${row.run_name}.pyena.txt
+    """
+}
+
+dh_ocarina_report_ch
+    .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
+    .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
+    .set { dh_ocarina_report_ch_split }
+
+process tag_ocarina {
+    tag { bam }
+    label 'ocarina'
+    conda "../environments/ocarina.yaml"
+
+    input:
+    tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
+
+    errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
+    maxRetries 3
+
+    cpus 6 //# massively over-request local cores to prevent sending too much to API at once
+
+    script:
+    """
+    ocarina --oauth --env put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+    ocarina --oauth --env put publish --publish-group '${ena_run_name}' --service 'ENA-RUN' --accession ${run_acc} --public --submitted
     """
 }
 
@@ -119,7 +147,7 @@ process generate_manifest {
     """
     echo "STUDY ${params.study}
     SAMPLE ${row.ena_sample_id}
-    RUN_REF ${row.ena_run_id}
+    RUN_REF ${row.pag_name}
     ASSEMBLYNAME ${row.assemblyname}
     DESCRIPTION """ << this_description << """
     ASSEMBLY_TYPE COVID-19 outbreak
