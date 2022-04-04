@@ -72,10 +72,11 @@ process pyena_submission {
     conda "environments/pyena.yaml"
 
     input:
-    tuple row, file(ena_fasta), file(chr_list), file(chr_list) from pyena_input_ch
+    tuple row, file(ena_fasta), file(chr_list) from pyena_input_ch
 
     output:
-    tuple row, file(ena_fasta), file(chr_list), file(chr_list) into genmanifest_ch
+    tuple row, file(ena_fasta), file(chr_list) into genmanifest_ch
+    file("${row.central_sample_id}.${row.run_name}.pyena.txt") into dh_ocarina_report_ch
 
 
     script:
