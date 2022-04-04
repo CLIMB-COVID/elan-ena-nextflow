@@ -6,4 +6,4 @@ channels:
 dependencies:
   - pip
   - pip:
-    - git+https://github.com/CLIMB-COVID/pyena.git@68860439895ca671b73548b4e8f530953e1f60dd
+    - git+https://github.com/CLIMB-COVID/pyena.git@e82851d0a82f78f823b89eb115364b2ba320ab73
