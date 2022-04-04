@@ -76,7 +76,7 @@ process pyena_submission {
 
     output:
     tuple row, file(ena_fasta), file(chr_list) into genmanifest_ch
-    file("${row.central_sample_id}.${row.run_name}.pyena.txt") into dh_ocarina_report_ch
+    file("${row.central_sample_id}.pyena.txt") into dh_ocarina_report_ch
 
 
     script:
@@ -103,10 +103,7 @@ process pyena_submission {
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}' \
-          --experiment-attr 'artic_primer_version' '${row.exp_primers}' \
-          --experiment-attr 'artic_protocol_version' '${row.exp_protocol}' \
-          --run-name ${row.published_name} > ${row.central_sample_id}.${row.run_name}.pyena.txt
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}' > ${row.central_sample_id}.pyena.txt
     """
 }
 
