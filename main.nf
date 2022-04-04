@@ -105,7 +105,7 @@ process pyena_submission {
           --sample-attr 'max_cycle_threshold' '${row.max_ct}' \
           --experiment-attr 'artic_primer_version' '${row.exp_primers}' \
           --experiment-attr 'artic_protocol_version' '${row.exp_protocol}' \
-          --run-name ${row.published_name} > ${coguk_id}.${row.run_name}.pyena.txt
+          --run-name ${row.published_name} > ${row.central_sample_id}.${row.run_name}.pyena.txt
     """
 }
 
