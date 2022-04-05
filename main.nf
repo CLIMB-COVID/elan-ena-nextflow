@@ -104,18 +104,19 @@ process pyena_submission {
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
           --sample-attr 'max_cycle_threshold' '${row.max_ct}' > ${row.central_sample_id}.${row.run_name}.pyena.txt
-        //   --experiment-attr 'artic_primer_version' '${row.library_primers}' \
-        //   --experiment-attr 'artic_protocol_version' '${row.library_protocol}' \
-        //   --run-name ${row.published_name} \
-        //   --run-file-path ${}
-        //   --run-center-name "${row.run_center_name}" \
-        //   --run-instrument '${row.instrument_model}' \
-        //   --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
-        //   --run-lib-source ${row.library_source} \
-        //   --run-lib-selection ${row.library_selection} \
-        //   --run-lib-strategy ${row.library_strategy} 
     """
 }
+
+//   --experiment-attr 'artic_primer_version' '${row.library_primers}' \
+//   --experiment-attr 'artic_protocol_version' '${row.library_protocol}' \
+//   --run-name ${row.published_name} \
+//   --run-file-path ${}
+//   --run-center-name "${row.run_center_name}" \
+//   --run-instrument '${row.instrument_model}' \
+//   --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
+//   --run-lib-source ${row.library_source} \
+//   --run-lib-selection ${row.library_selection} \
+//   --run-lib-strategy ${row.library_strategy} 
 
 // dh_ocarina_report_ch
 //     .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
