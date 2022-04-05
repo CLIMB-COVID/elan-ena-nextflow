@@ -145,7 +145,7 @@ dh_ocarina_report_ch
 process generate_manifest {
     input:
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
-    tuple row_2 from dh_accession_report_ch
+    tuple ena_run_name, sample_acc, run_acc from dh_accession_report_ch
 
     output:
     tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into webin_validate_ch
@@ -155,8 +155,8 @@ process generate_manifest {
     this_description = engine.createTemplate(description_s).make(['row':row]).toString()
     """
     echo "STUDY ${params.study}
-    SAMPLE ${row_2.sample_acc}
-    RUN_REF ${row_2.run_acc}
+    SAMPLE ${sample_acc}
+    RUN_REF ${run_acc}
     ASSEMBLYNAME ${row.assemblyname}
     DESCRIPTION """ << this_description << """
     ASSEMBLY_TYPE COVID-19 outbreak
