@@ -104,6 +104,8 @@ process pyena_submission {
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
           --sample-attr 'max_cycle_threshold' '${row.max_ct}'\
+          --experiment-attr 'artic_primer_version' '${row.library_primers}' \
+          --experiment-attr 'artic_protocol_version' '${row.library_protocol}'\
           --run-name ${row.ena_run_id} \
           --run-center-name "${row.run_center_name}" \
           --run-instrument '${row.run_instrument}' \
