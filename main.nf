@@ -153,24 +153,45 @@ process generate_manifest {
     script:
     def engine = new groovy.text.SimpleTemplateEngine()
     this_description = engine.createTemplate(description_s).make(['row':row]).toString()
-    """
-    echo "STUDY ${params.study}
-    SAMPLE ${sample_acc}
-    RUN_REF ${run_acc}
-    ASSEMBLYNAME ${row.assemblyname}
-    DESCRIPTION """ << this_description << """
-    ASSEMBLY_TYPE COVID-19 outbreak
-    MOLECULETYPE genomic RNA
-    COVERAGE ${row.mean_cov}
-    PROGRAM ${row.program}
-    PLATFORM ${row.platform}
-    CHROMOSOME_LIST ${chr_list}
-    FASTA ${ena_fasta}
-    AUTHORS ${row.authors}
-    ADDRESS ${row.address}
-    SUBMISSION_TOOL ${workflow_repo}
-    SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
-    """
+    if (run_acc){
+        """
+        echo "STUDY ${params.study}
+        SAMPLE ${sample_acc}
+        RUN_REF ${run_acc}
+        ASSEMBLYNAME ${row.assemblyname}
+        DESCRIPTION """ << this_description << """
+        ASSEMBLY_TYPE COVID-19 outbreak
+        MOLECULETYPE genomic RNA
+        COVERAGE ${row.mean_cov}
+        PROGRAM ${row.program}
+        PLATFORM ${row.platform}
+        CHROMOSOME_LIST ${chr_list}
+        FASTA ${ena_fasta}
+        AUTHORS ${row.authors}
+        ADDRESS ${row.address}
+        SUBMISSION_TOOL ${workflow_repo}
+        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
+        """        
+    } else {
+        """
+        echo "STUDY ${params.study}
+        SAMPLE ${sample_acc}
+        ASSEMBLYNAME ${row.assemblyname}
+        DESCRIPTION """ << this_description << """
+        ASSEMBLY_TYPE COVID-19 outbreak
+        MOLECULETYPE genomic RNA
+        COVERAGE ${row.mean_cov}
+        PROGRAM ${row.program}
+        PLATFORM ${row.platform}
+        CHROMOSOME_LIST ${chr_list}
+        FASTA ${ena_fasta}
+        AUTHORS ${row.authors}
+        ADDRESS ${row.address}
+        SUBMISSION_TOOL ${workflow_repo}
+        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
+        """         
+    }
+    
 }
 
 process webin_validate {
@@ -188,20 +209,20 @@ process webin_validate {
     """
 }
 
-// process webin_submit {
-//     errorStrategy 'ignore' //# Drop assemblies that fail to validate
+process webin_submit {
+    errorStrategy 'ignore' //# Drop assemblies that fail to validate
 
-//     input:
-//     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
+    input:
+    tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
 
-//     output:
-//     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file("genome/${row.assemblyname.replaceAll('#', '_')}/submit/receipt.xml") into webin_parse_ch
+    output:
+    tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file("genome/${row.assemblyname.replaceAll('#', '_')}/submit/receipt.xml") into webin_parse_ch
 
-//     script:
-//     """
-//     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -submit ${flag_test}
-//     """
-// }
+    script:
+    """
+    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -submit ${flag_test}
+    """
+}
 
 // process receipt_parser {
 //     conda "$baseDir/environments/receipt.yaml"
