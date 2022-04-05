@@ -106,7 +106,6 @@ process pyena_submission {
           --sample-attr 'max_cycle_threshold' '${row.max_ct}'\
           --experiment-attr 'artic_primer_version' '${row.library_primers}' \
           --experiment-attr 'artic_protocol_version' '${row.library_protocol}'\
-          --run-name ${row.ena_run_id} \
           --run-center-name "${row.run_center_name}" \
           --run-instrument '${row.run_instrument}' \
           --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
