@@ -79,8 +79,15 @@ process pyena_submission {
     file("${row.central_sample_id}.pyena.txt") into dh_ocarina_report_ch
 
     script:
+
+    if (! params.test) {
+        pyena_test_flag = "--my-data-is-ready"
+    } else {
+        pyena_test_flag = ""
+    }
+
     """
-    pyena --study-accession ${params.study} --no-ftp --sample-only \
+    pyena --study-accession ${params.study} --no-ftp --sample-only ${pyena_test_flag}\
           --sample-name COG-UK/${row.central_sample_id} \
           --sample-center-name "${row.center_name}" \
           --sample-taxon '2697049' \
@@ -122,25 +129,31 @@ dh_ocarina_report_ch
     .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
     .into { dh_ocarina_report_ch_split; dh_accession_report_ch }
 
-// process tag_ocarina {
-//     tag { bam }
-//     label 'ocarina'
-//     conda "../environments/ocarina.yaml"
+process tag_ocarina {
+    tag { bam }
+    label 'ocarina'
+    conda "../environments/ocarina.yaml"
 
-//     input:
-//     tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
+    input:
+    tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
 
-//     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
-//     maxRetries 3
+    errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
+    maxRetries 3
 
-//     cpus 6 //# massively over-request local cores to prevent sending too much to API at once
+    cpus 6 //# massively over-request local cores to prevent sending too much to API at once
 
-//     script:
-//     """
-//     ocarina --oauth --env put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
-//     ocarina --oauth --env put publish --publish-group '${ena_run_name}' --service 'ENA-RUN' --accession ${run_acc} --public --submitted
-//     """
-// }
+    script:
+    if (params.test) {
+        """
+        ocarina --oauth --profile test put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+        """        
+    } else {
+        """
+        ocarina --oauth --profile live put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+        """
+    }
+
+}
 
 process generate_manifest {
     input:
@@ -205,7 +218,7 @@ process webin_validate {
 
     script:
     """
-    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -validate
+    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -validate ${flag_test}
     """
 }
 
@@ -224,20 +237,20 @@ process webin_submit {
     """
 }
 
-// process receipt_parser {
-//     conda "$baseDir/environments/receipt.yaml"
+process receipt_parser {
+    conda "$baseDir/environments/receipt.yaml"
 
-//     input:
-//     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
+    input:
+    tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
 
-//     output:
-//     file("${row.climb_fn.baseName}.accession.txt") into accession_report_ch
+    output:
+    file("${row.climb_fn.baseName}.accession.txt") into accession_report_ch
 
-//     script:
-//     """
-//     parse_receipt.py ${ena_manifest} ${ena_receipt} ${row.published_name} > ${row.climb_fn.baseName}.accession.txt
-//     """
-// }
+    script:
+    """
+    parse_receipt.py ${ena_manifest} ${ena_receipt} ${row.published_name} > ${row.climb_fn.baseName}.accession.txt
+    """
+}
 
-// accession_report_ch
-//     .collectFile(keepHeader: true, name: "${out_name}", storeDir: "${out_dir}")
+accession_report_ch
+    .collectFile(keepHeader: true, name: "${out_name}", storeDir: "${out_dir}")
