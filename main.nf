@@ -153,7 +153,7 @@ process generate_manifest {
     script:
     def engine = new groovy.text.SimpleTemplateEngine()
     this_description = engine.createTemplate(description_s).make(['row':row]).toString()
-    if (run_acc == "None"){
+    if (run_acc != "None"){
         """
         echo "STUDY ${params.study}
         SAMPLE ${sample_acc}
