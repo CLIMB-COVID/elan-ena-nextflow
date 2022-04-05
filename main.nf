@@ -78,7 +78,6 @@ process pyena_submission {
     tuple row, file(ena_fasta), file(chr_list) into genmanifest_ch
     file("${row.central_sample_id}.pyena.txt") into dh_ocarina_report_ch
 
-
     script:
     """
     pyena --study-accession ${params.study} --no-ftp --sample-only \
@@ -118,10 +117,10 @@ process pyena_submission {
 //   --run-lib-selection ${row.library_selection} \
 //   --run-lib-strategy ${row.library_strategy} 
 
-// dh_ocarina_report_ch
-//     .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
-//     .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
-//     .set { dh_ocarina_report_ch_split }
+dh_ocarina_report_ch
+    .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
+    .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
+    .into { dh_ocarina_report_ch_split; dh_accession_report_ch }
 
 // process tag_ocarina {
 //     tag { bam }
@@ -146,6 +145,7 @@ process pyena_submission {
 process generate_manifest {
     input:
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
+    tuple row_2 from dh_accession_report_ch
 
     output:
     tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into webin_validate_ch
@@ -155,8 +155,8 @@ process generate_manifest {
     this_description = engine.createTemplate(description_s).make(['row':row]).toString()
     """
     echo "STUDY ${params.study}
-    SAMPLE ${row.ena_sample_id}
-    RUN_REF ${row.published_name}
+    SAMPLE ${row_2.sample_acc}
+    RUN_REF ${row_2.run_acc}
     ASSEMBLYNAME ${row.assemblyname}
     DESCRIPTION """ << this_description << """
     ASSEMBLY_TYPE COVID-19 outbreak
