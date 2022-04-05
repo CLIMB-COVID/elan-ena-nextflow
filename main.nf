@@ -36,7 +36,7 @@ if( workflow.commitId ){
 
 Channel
     .fromPath(params.manifest)
-    .splitCsv(header:true, sep:'\t')
+    .splitCsv(header:true, sep:',')
     .map{ it << [climb_fn: file(it.climb_fn), hoot:0] }
     .set{manifest_ch}
 
@@ -81,7 +81,7 @@ process pyena_submission {
 
     script:
     """
-    pyena --study-accession ${params.study} --sample-only --no-ftp \
+    pyena --study-accession ${params.study} --no-ftp \
           --sample-name COG-UK/${row.central_sample_id} \
           --sample-center-name "${row.center_name}" \
           --sample-taxon '2697049' \
@@ -103,7 +103,14 @@ process pyena_submission {
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}' > ${row.central_sample_id}.pyena.txt
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}'\
+          --run-name ${row.ena_run_name} \
+          --run-center-name "${row.run_center_name}" \
+          --run-instrument '${row.run_instrument}' \
+          --run-lib-protocol '${exp_seq_kit}|${exp_seq_protocol}' \
+          --run-lib-source ${l_source} \
+          --run-lib-selection ${l_selection} \
+          --run-lib-strategy ${l_strategy} > ${row.central_sample_id}.pyena.txt
     """
 }
 
