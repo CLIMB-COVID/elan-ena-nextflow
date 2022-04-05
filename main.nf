@@ -156,7 +156,7 @@ process generate_manifest {
     """
     echo "STUDY ${params.study}
     SAMPLE ${row.ena_sample_id}
-    RUN_REF ${row.pag_name}
+    RUN_REF ${row.published_name}
     ASSEMBLYNAME ${row.assemblyname}
     DESCRIPTION """ << this_description << """
     ASSEMBLY_TYPE COVID-19 outbreak
