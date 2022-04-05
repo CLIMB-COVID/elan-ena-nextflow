@@ -36,7 +36,7 @@ if( workflow.commitId ){
 
 Channel
     .fromPath(params.manifest)
-    .splitCsv(header:true, sep:'\t')
+    .splitCsv(header:true, sep:',')
     .map{ it << [climb_fn: file(it.climb_fn), hoot:0] }
     .set{manifest_ch}
 
