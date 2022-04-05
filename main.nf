@@ -69,7 +69,7 @@ process generate_chrlist {
 
 process pyena_submission {
     errorStrategy 'ignore'
-    conda "${projectDir}/environments/pyena.yaml"
+    conda "${workflow.projectDir}/environments/pyena.yaml"
 
     input:
     tuple row, file(ena_fasta), file(chr_list) from pyena_input_ch
@@ -132,7 +132,7 @@ dh_ocarina_report_ch
 process tag_ocarina {
     tag { bam }
     label 'ocarina'
-    conda "${projectDir}/environments/ocarina.yaml"
+    conda "${workflow.projectDir}/environments/ocarina.yaml"
 
     input:
     tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
