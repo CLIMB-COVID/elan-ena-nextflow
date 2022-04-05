@@ -81,7 +81,7 @@ process pyena_submission {
 
     script:
     """
-    pyena --study-accession ${params.study} --no-ftp \
+    pyena --study-accession ${params.study} --no-ftp --sample-only \
           --sample-name COG-UK/${row.central_sample_id} \
           --sample-center-name "${row.center_name}" \
           --sample-taxon '2697049' \
@@ -103,16 +103,17 @@ process pyena_submission {
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}'\
-          --experiment-attr 'artic_primer_version' '${row.library_primers}' \
-          --experiment-attr 'artic_protocol_version' '${row.library_protocol}'\
-          --run-name ${row.published_name} \
-          --run-center-name "${row.run_center_name}" \
-          --run-instrument '${row.instrument_model}' \
-          --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
-          --run-lib-source ${row.library_source} \
-          --run-lib-selection ${row.library_selection} \
-          --run-lib-strategy ${row.library_strategy} > ${row.central_sample_id}.${row.run_name}.pyena.txt
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}' > ${row.central_sample_id}.${row.run_name}.pyena.txt
+        //   --experiment-attr 'artic_primer_version' '${row.library_primers}' \
+        //   --experiment-attr 'artic_protocol_version' '${row.library_protocol}' \
+        //   --run-name ${row.published_name} \
+        //   --run-file-path ${}
+        //   --run-center-name "${row.run_center_name}" \
+        //   --run-instrument '${row.instrument_model}' \
+        //   --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
+        //   --run-lib-source ${row.library_source} \
+        //   --run-lib-selection ${row.library_selection} \
+        //   --run-lib-strategy ${row.library_strategy} 
     """
 }
 
