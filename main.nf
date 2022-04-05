@@ -108,7 +108,7 @@ process pyena_submission {
           --experiment-attr 'artic_protocol_version' '${row.library_protocol}'\
           --run-name ${row.published_name} \
           --run-center-name "${row.run_center_name}" \
-          --run-instrument '${row.run_instrument}' \
+          --run-instrument '${row.instrument_model}' \
           --run-lib-protocol '${row.library_seq_kit}|${row.library_seq_protocol}' \
           --run-lib-source ${row.library_source} \
           --run-lib-selection ${row.library_selection} \
