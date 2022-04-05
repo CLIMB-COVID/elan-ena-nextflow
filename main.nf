@@ -69,7 +69,7 @@ process generate_chrlist {
 
 process pyena_submission {
     errorStrategy 'ignore'
-    conda "environments/pyena.yaml"
+    conda "../environments/pyena.yaml"
 
     input:
     tuple row, file(ena_fasta), file(chr_list) from pyena_input_ch
