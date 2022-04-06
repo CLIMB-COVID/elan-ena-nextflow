@@ -109,7 +109,8 @@ process pyena_submission {
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
           --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}' > ${row.central_sample_id}.pyena.txt
+          --sample-attr 'max_cycle_threshold' '${row.max_ct}' \
+          --run-name ${row.published_name} > ${row.central_sample_id}.pyena.txt
     """
 }
 
@@ -145,11 +146,11 @@ process tag_ocarina {
     script:
     if (params.test) {
         """
-        ocarina --oauth --profile test put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+        ocarina --oauth --profile test-service-outbound put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
         """        
     } else {
         """
-        ocarina --oauth --profile live put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+        ocarina --oauth --profile service-outbound put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
         """
     }
 
