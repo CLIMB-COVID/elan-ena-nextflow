@@ -141,7 +141,8 @@ process tag_ocarina {
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
     maxRetries 3
 
-    cpus 6 //# massively over-request local cores to prevent sending too much to API at once
+    cpus 2 //# massively over-request local cores to prevent sending too much to API at once
+    // ^ Not necessary on the current VM due to lower number of cores 
 
     script:
     if (params.test) {
