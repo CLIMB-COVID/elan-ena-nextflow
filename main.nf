@@ -108,8 +108,6 @@ process pyena_submission {
           --sample-attr 'sample capture status' 'active surveillance in response to outbreak' \
           --sample-attr 'virus identifier' 'not provided' \
           --sample-attr 'ENA-CHECKLIST' 'ERC000033' \
-          --sample-attr 'min_cycle_threshold' '${row.min_ct}' \
-          --sample-attr 'max_cycle_threshold' '${row.max_ct}' \
           --run-name ${row.published_name} > ${row.central_sample_id}.pyena.txt
     """
 }
