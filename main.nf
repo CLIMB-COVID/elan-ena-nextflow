@@ -139,7 +139,7 @@ process tag_ocarina {
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
     maxRetries 3
 
-    maxForks 2 //# Limit number of forks to prevent sending too much to API at once
+    maxForks 4 //# Limit number of forks to prevent sending too much to API at once
 
     script:
     if (params.test) {
