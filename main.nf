@@ -125,7 +125,7 @@ process pyena_submission {
 
 dh_ocarina_report_ch
     .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
-    .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
+    .map { row-> tuple(row.ena_run_name, row.sample_acc) }
     .into { dh_ocarina_report_ch_split; dh_accession_report_ch }
 
 process tag_ocarina {
@@ -134,7 +134,7 @@ process tag_ocarina {
     conda "${workflow.projectDir}/environments/ocarina.yaml"
 
     input:
-    tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
+    tuple ena_run_name, sample_acc from dh_ocarina_report_ch_split
 
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
     maxRetries 3
@@ -222,7 +222,7 @@ process webin_validate {
 }
 
 process webin_submit {
-    errorStrategy 'ignore' //# Drop assemblies that fail to validate
+    errorStrategy 'ignore' //# Allow failed submissions to continue (This is usually due to them already having been uploaded previously)
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
@@ -233,6 +233,9 @@ process webin_submit {
     script:
     """
     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -submit ${flag_test}
+    if [ -f "genome/*/submit/receipt.xml" ]; then
+        exit 0
+    fi
     """
 }
 
