@@ -232,15 +232,15 @@ process webin_submit {
 
     script:
     """
+    trap 'if [ -e "genome/${row.assemblyname.replaceAll('#', '_')}/submit/receipt.xml" ]; then exit 0; else exit 1 ; fi' EXIT
     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -submit ${flag_test}
-    if [ -f "genome/*/submit/receipt.xml" ]; then
-        exit 0
-    fi
     """
 }
 
 process receipt_parser {
     conda "$baseDir/environments/receipt.yaml"
+
+    errorStrategy 'ignore'
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
