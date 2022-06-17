@@ -125,7 +125,7 @@ process pyena_submission {
 
 dh_ocarina_report_ch
     .splitCsv(header:['success', 'real', 'ena_sample_name', 'ena_run_name', 'bam', 'study_acc', 'sample_acc', 'exp_acc', 'run_acc'], sep:' ')
-    .map { row-> tuple(row.ena_run_name, row.sample_acc) }
+    .map { row-> tuple(row.ena_run_name, row.sample_acc, row.run_acc) }
     .into { dh_ocarina_report_ch_split; dh_accession_report_ch }
 
 process tag_ocarina {
@@ -134,7 +134,7 @@ process tag_ocarina {
     conda "${workflow.projectDir}/environments/ocarina.yaml"
 
     input:
-    tuple ena_run_name, sample_acc from dh_ocarina_report_ch_split
+    tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
 
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
     maxRetries 3
