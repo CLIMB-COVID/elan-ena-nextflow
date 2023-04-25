@@ -49,7 +49,7 @@ process prep_fasta {
     tuple row, file("${row.climb_fn.baseName}.ena-a.fasta.gz") into chrlist_ch
 
     """
-    elan_rehead.py ${row.climb_fn} '${row.published_name}' | gzip > ${row.climb_fn.baseName}.ena-a.fasta.gz
+    elan_rehead.py ${row.climb_fn} '${row.assemblyname}' | gzip > ${row.climb_fn.baseName}.ena-a.fasta.gz
     """
 }
 
@@ -63,7 +63,7 @@ process generate_chrlist {
 
     script:
     """
-    echo "${row.published_name} 1 Monopartite" | gzip > ${row.climb_fn.baseName}.chr_list.txt.gz
+    echo "${row.assemblyname} 1 Monopartite" | gzip > ${row.climb_fn.baseName}.chr_list.txt.gz
     """
 }
 
