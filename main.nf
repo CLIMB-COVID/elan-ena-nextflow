@@ -42,6 +42,8 @@ Channel
 
 process prep_fasta {
 
+    maxForks 8
+
     input:
     val row from manifest_ch
 
@@ -54,6 +56,8 @@ process prep_fasta {
 }
 
 process generate_chrlist {
+
+    maxForks 16
 
     input:
     tuple row, file(ena_fasta) from chrlist_ch
@@ -70,6 +74,8 @@ process generate_chrlist {
 process pyena_submission {
     errorStrategy 'ignore'
     conda "${workflow.projectDir}/environments/pyena.yaml"
+
+    maxForks 8
 
     input:
     tuple row, file(ena_fasta), file(chr_list) from pyena_input_ch
@@ -133,13 +139,13 @@ process tag_ocarina {
     label 'ocarina'
     conda "${workflow.projectDir}/environments/ocarina.yaml"
 
+    maxForks 4 //# Limit number of forks to prevent sending too much to API at once
+    maxRetries 3
+
     input:
     tuple ena_run_name, sample_acc, run_acc from dh_ocarina_report_ch_split
 
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
-    maxRetries 3
-
-    maxForks 4 //# Limit number of forks to prevent sending too much to API at once
 
     script:
     if (params.test) {
@@ -155,6 +161,9 @@ process tag_ocarina {
 }
 
 process generate_manifest {
+
+    maxForks 8
+
     input:
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
     tuple ena_run_name, sample_acc, run_acc from dh_accession_report_ch
@@ -215,6 +224,8 @@ process webin_validate {
     output:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) into webin_submit_ch
 
+    maxForks 8
+
     script:
     """
     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -validate ${flag_test}
@@ -223,6 +234,8 @@ process webin_validate {
 
 process webin_submit {
     errorStrategy 'ignore' //# Allow failed submissions to continue (This is usually due to them already having been uploaded previously)
+
+    maxForks 8
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
@@ -241,6 +254,8 @@ process receipt_parser {
     conda "$baseDir/environments/receipt.yaml"
 
     errorStrategy 'ignore'
+
+    maxForks 8
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
