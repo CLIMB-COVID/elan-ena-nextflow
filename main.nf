@@ -228,7 +228,7 @@ process webin_validate {
 
     script:
     """
-    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -validate ${flag_test}
+    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName "${row.center_name}" ${flag_ascp} -validate ${flag_test}
     """
 }
 
