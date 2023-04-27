@@ -42,7 +42,7 @@ Channel
 
 process prep_fasta {
 
-    maxForks 8
+    maxForks 4
 
     input:
     val row from manifest_ch
@@ -57,7 +57,7 @@ process prep_fasta {
 
 process generate_chrlist {
 
-    maxForks 16
+    maxForks 4
 
     input:
     tuple row, file(ena_fasta) from chrlist_ch
@@ -75,7 +75,7 @@ process pyena_submission {
     errorStrategy 'ignore'
     conda "${workflow.projectDir}/environments/pyena.yaml"
 
-    maxForks 8
+    maxForks 4
 
     input:
     tuple row, file(ena_fasta), file(chr_list) from pyena_input_ch
@@ -162,7 +162,7 @@ process tag_ocarina {
 
 process generate_manifest {
 
-    maxForks 8
+    maxForks 4
 
     input:
     tuple row, file(ena_fasta), file(chr_list) from genmanifest_ch
@@ -224,7 +224,7 @@ process webin_validate {
     output:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) into webin_submit_ch
 
-    maxForks 8
+    maxForks 4
 
     script:
     """
@@ -235,7 +235,7 @@ process webin_validate {
 process webin_submit {
     errorStrategy 'ignore' //# Allow failed submissions to continue (This is usually due to them already having been uploaded previously)
 
-    maxForks 8
+    maxForks 4
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
@@ -255,7 +255,7 @@ process receipt_parser {
 
     errorStrategy 'ignore'
 
-    maxForks 8
+    maxForks 4
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
