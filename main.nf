@@ -224,7 +224,7 @@ process webin_validate {
     output:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) into webin_submit_ch
 
-    maxForks 4
+    maxForks 2
 
     script:
     """
@@ -235,7 +235,7 @@ process webin_validate {
 process webin_submit {
     errorStrategy 'ignore' //# Allow failed submissions to continue (This is usually due to them already having been uploaded previously)
 
-    maxForks 4
+    maxForks 2
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_submit_ch
