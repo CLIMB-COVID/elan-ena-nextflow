@@ -246,7 +246,7 @@ process webin_submit {
     script:
     """
     trap 'if [ -e "genome/${row.assemblyname.replaceAll('#', '_')}/submit/receipt.xml" ]; then exit 0; else exit 1 ; fi' EXIT
-    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName '${row.center_name}' ${flag_ascp} -submit ${flag_test}
+    java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName "${row.center_name}" ${flag_ascp} -submit ${flag_test}
     """
 }
 
