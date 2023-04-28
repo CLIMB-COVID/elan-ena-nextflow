@@ -139,7 +139,7 @@ process tag_ocarina {
     label 'ocarina'
     conda "${workflow.projectDir}/environments/ocarina.yaml"
 
-    maxForks 4 //# Limit number of forks to prevent sending too much to API at once
+    maxForks 2 //# Limit number of forks to prevent sending too much to API at once
     maxRetries 3
 
     input:
