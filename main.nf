@@ -250,7 +250,7 @@ process webin_submit {
     """
 }
 
-process receipt_parser {
+process webin_parse_majora_submit {
     conda "$baseDir/environments/receipt.yaml"
 
     errorStrategy 'ignore'
@@ -264,8 +264,17 @@ process receipt_parser {
     file("${row.climb_fn.baseName}.accession.txt") into accession_report_ch
 
     script:
+
+    if (params.test) {
+        test_flag = "--test"
+    } else {
+        test_flag = ""
+    }
+    // Annoyingly I can't get ocarina to stfu about the response and it prints messages to both stdout and stderr so I'm doing this disgusting hack
     """
-    parse_receipt.py ${ena_manifest} ${ena_receipt} ${row.published_name} > ${row.climb_fn.baseName}.accession.txt
+    parse_receipt.py ${test_flag} ${ena_manifest} ${ena_receipt} ${row.published_name} > ${row.climb_fn.baseName}.tmp.txt
+
+    tail -n 2 ${row.climb_fn.baseName}.tmp.txt > ${row.climb_fn.baseName}.accession.txt
     """
 }
 
