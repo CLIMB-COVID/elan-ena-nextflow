@@ -253,9 +253,10 @@ process webin_submit {
 process webin_parse_majora_submit {
     conda "$baseDir/environments/receipt.yaml"
 
-    errorStrategy 'ignore'
+    errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
 
     maxForks 4
+    maxRetries 3
 
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest), file(ena_receipt) from webin_parse_ch
