@@ -76,5 +76,5 @@ except:
 send_asm_accession(published_name, erz, assembly_name)
 
 with open(f"{args.file_prefix}.accession.txt", "w") as fh:
-    print("published_name", "assemblyname", "ena_assembly_id", file=fh, sep="\t")
-    print(published_name, assembly_name, erz, file=fh, sep="\t")
+    print("published_name", "assemblyname", "ena_assembly_id", file=fh)
+    print(published_name, assembly_name, erz, file=fh)
