@@ -13,6 +13,7 @@ parser.add_argument("--test", action="store_true", default=False)
 parser.add_argument("webin_manifest")
 parser.add_argument("webin_output_xml")
 parser.add_argument("published_name")
+parser.add_argument("file_prefix")
 args = parser.parse_args()
 
 ocarina = Ocarina()
@@ -74,5 +75,6 @@ except:
 
 send_asm_accession(published_name, erz, assembly_name)
 
-print("published_name", "assemblyname", "ena_assembly_id")
-print(published_name, assembly_name, erz)
+with open(f"{args.file_prefix}.accession.txt", "w") as fh:
+    print("published_name", "assemblyname", "ena_assembly_id", file=fh, sep="\t")
+    print(published_name, assembly_name, erz, file=fh, sep="\t")
