@@ -21,6 +21,12 @@ if( params.description ){
     description_s = params.description
 }
 
+if( params.test ){
+    ocarina_profile = "test-service-outbound"
+} else {
+    ocarina_profile = "service-outbound"
+}
+
 out_name = file(params.out).name
 out_dir = file(params.out).parent
 
@@ -148,15 +154,9 @@ process tag_ocarina {
     errorStrategy { sleep(Math.pow(2, task.attempt) * 300 as long); return 'retry' }
 
     script:
-    if (params.test) {
-        """
-        ocarina --oauth --profile test-service-outbound put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
-        """        
-    } else {
-        """
-        ocarina --oauth --profile service-outbound put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
-        """
-    }
+    """
+    ocarina --oauth --profile ${ocarina_profile} put publish --publish-group '${ena_run_name}' --service 'ENA-SAMPLE' --accession ${sample_acc} --public --submitted
+    """        
 
 }
 
@@ -216,6 +216,9 @@ process generate_manifest {
 }
 
 process webin_validate {
+    label 'ocarina'
+    conda "${workflow.projectDir}/environments/ocarina.yaml"
+
     input:
     tuple row, file(ena_fasta), file(chr_list), file(ena_manifest) from webin_validate_ch
 
@@ -229,6 +232,11 @@ process webin_validate {
     script:
     """
     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName "${row.center_name}" ${flag_ascp} -validate ${flag_test}
+
+    retVal=\$?
+    if [ \$retVal -eq 3 ]; then
+        ocarina --oauth --env put tag --partial --artifact ${row.biosample_id} -m webin failed TRUE
+    fi
     """
 }
 
