@@ -235,8 +235,9 @@ process webin_validate {
 
     retVal=\$?
     if [ \$retVal -eq 3 ]; then
-        ocarina --oauth --env put tag --partial --artifact ${row.biosample_id} -m webin failed TRUE
+        ocarina --oauth ---profile ${ocarina_profile} put tag --partial --artifact ${row.biosample_id} -m webin failed TRUE
     fi
+    exit \$retVal
     """
 }
 
