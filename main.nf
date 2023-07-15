@@ -233,7 +233,15 @@ process webin_validate {
 
     // If webin validate exits 3 (failed validation) then mark the sample as failed in majora, have to do slightly dangerous exit code trap to fool nextflow
     """
-    trap 'retVal=\$?; if [ \$retVal -eq 3 ]; then ocarina --oauth ---profile ${ocarina_profile} put tag --partial --artifact ${row.biosample_id} -m webin failed TRUE; else exit \$retVal ; fi' EXIT
+    exit_handler() {
+        retVal=\$?
+        if [ \$retVal -eq 3 ]; then
+            ocarina --oauth ---profile ${ocarina_profile} put tag --partial --artifact ${row.biosample_id} -m webin failed TRUE
+        fi
+        exit \$retVal
+    }
+
+    trap exit_handler EXIT
     java -jar ${params.webin_jar} -context genome -userName \$WEBIN_USER -password \$WEBIN_PASS -manifest ${ena_manifest} -centerName "${row.center_name}" ${flag_ascp} -validate ${flag_test}
     """
 }
