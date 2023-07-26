@@ -1,0 +1,9 @@
+name: pyena
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pip
+  - pip:
+    - git+https://github.com/CLIMB-COVID/pyena.git@cbc1d5a42c7e8c53948099042d32b2ce89d73440

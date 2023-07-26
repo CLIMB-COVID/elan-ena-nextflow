@@ -1,0 +1,9 @@
+name: ocarina
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - samtools
+  - pip:
+    - git+https://github.com/climb-covid/ocarina2.git@1fa98675e24197ccce977dfe3933a9ff0c8d5921
