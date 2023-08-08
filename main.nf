@@ -54,10 +54,10 @@ process prep_fasta {
     val row from manifest_ch
 
     output:
-    tuple row, file("${row.climb_fn.baseName}.ena-a.fasta.gz") into chrlist_ch
+    tuple row, file("${row.assemblyname}.ena-a.fasta.gz") into chrlist_ch
 
     """
-    elan_rehead.py ${row.climb_fn} '${row.assemblyname}' | gzip > ${row.climb_fn.baseName}.ena-a.fasta.gz
+    elan_rehead.py ${row.climb_fn} '${row.assemblyname}' | gzip > ${row.assemblyname}.ena-a.fasta.gz
     """
 }
 
@@ -69,11 +69,11 @@ process generate_chrlist {
     tuple row, file(ena_fasta) from chrlist_ch
 
     output:
-    tuple row, file(ena_fasta), file("${row.climb_fn.baseName}.chr_list.txt.gz") into pyena_input_ch
+    tuple row, file(ena_fasta), file("${row.assemblyname}.chr_list.txt.gz") into pyena_input_ch
 
     script:
     """
-    echo "${row.assemblyname} 1 Monopartite" | gzip > ${row.climb_fn.baseName}.chr_list.txt.gz
+    echo "${row.assemblyname} 1 Monopartite" | gzip > ${row.assemblyname}.chr_list.txt.gz
     """
 }
 
@@ -191,7 +191,7 @@ process generate_manifest {
         AUTHORS ${row.authors}
         ADDRESS ${row.address}
         SUBMISSION_TOOL ${workflow_repo}
-        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
+        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.assemblyname}.manifest.txt
         """        
     } else {
         """
@@ -209,7 +209,7 @@ process generate_manifest {
         AUTHORS ${row.authors}
         ADDRESS ${row.address}
         SUBMISSION_TOOL ${workflow_repo}
-        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.climb_fn.baseName}.manifest.txt
+        SUBMISSION_TOOL_VERSION ${workflow_v}@${workflow_cid}" > ${row.assemblyname}.manifest.txt
         """         
     }
     
