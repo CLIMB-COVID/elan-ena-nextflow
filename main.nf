@@ -169,7 +169,7 @@ process generate_manifest {
     tuple ena_run_name, sample_acc, run_acc from dh_accession_report_ch
 
     output:
-    tuple row, file(ena_fasta), file(chr_list), file("${row.climb_fn.baseName}.manifest.txt") into webin_validate_ch
+    tuple row, file(ena_fasta), file(chr_list), file("${row.assemblyname}.manifest.txt") into webin_validate_ch
 
     script:
     def engine = new groovy.text.SimpleTemplateEngine()
