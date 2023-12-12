@@ -57,7 +57,7 @@ process prep_fasta {
     tuple row, file("${row.assemblyname}.ena-a.fasta.gz") into chrlist_ch
 
     """
-    elan_rehead.py ${row.climb_fn} '${row.assemblyname}' | gzip > ${row.assemblyname}.ena-a.fasta.gz
+    elan_rehead.py ${row.climb_fn} '${row.assemblyname}' | sed -e '/^[^>]/s/-//g' - | sed -e '/^[^>]/s/[^ATGCatgc]/N/g' - | gzip > ${row.assemblyname}.ena-a.fasta.gz
     """
 }
 
